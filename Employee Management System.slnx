@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="EMS.API/EMS.API.csproj" />
+  <Project Path="EMS.Blazor/EMS.Blazor.csproj" />
+  <Project Path="EMS.Shared/EMS.Shared.csproj" />
+</Solution>

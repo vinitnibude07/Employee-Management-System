@@ -1,0 +1,159 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+
+@using EMS.Blazor.Models
+@using EMS.Shared.DTOs
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject EMS.Blazor.Services.AuthService AuthService
+@inject EMS.Blazor.Services.TokenService TokenService
+@inject NavigationManager Navigation
+
+<nav class="w-100 d-flex justify-content-between align-items-center px-4 py-3 position-absolute top-0 start-0"
+     style="background: linear-gradient(180deg, rgba(20,26,35,0.8) 0%, rgba(12,16,22,0) 100%); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10;">
+    <div class="d-flex align-items-center">
+        <div class="fw-bold d-flex align-items-center justify-content-center text-white-50 border border-secondary rounded-3 px-2 py-1"
+             style="font-size: 0.8rem; background: linear-gradient(135deg, #1e293b, #0f172a); letter-spacing: 1px; box-shadow: inset 0 0 8px rgba(0,255,255,0.2);">
+            EMS
+        </div>
+    </div>
+    <div>
+        <a href="/about" class="text-decoration-none small text-secondary" style="border-bottom: 2px solid #00d2ff; padding-bottom: 4px; transition: color 0.2s;">About</a>
+    </div>
+</nav>
+
+<div class="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center position-relative p-3"
+     style="background: radial-gradient(circle at center, #1a2332 0%, #0d1117 100%); font-family: 'Segoe UI', system-ui, sans-serif;">
+
+    <div class="row justify-content-center w-100 my-auto">
+        <div class="col-md-6 col-lg-4" style="max-width: 440px;">
+
+            <div class="card border-0 rounded-4 shadow-2xl position-relative"
+                 style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255,255,255,0.1);
+                border: 1px solid rgba(0, 210, 255, 0.15) !important;">
+
+                <div class="card-body p-5">
+
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-white mb-2" style="letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.85rem;">
+                            Employee<br />Management
+                        </h2>
+                        <p class="text-muted small" style="letter-spacing: 0.3px; color: #788fa6 !important;">
+                            Sign in to your account to continue
+                        </p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger border-0 small rounded-3 mb-4 text-center"
+                             style="background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4) !important;" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <EditForm Model="@loginModel"
+                              OnValidSubmit="LoginUser"
+                              FormName="LoginForm">
+
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                Username<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                            </label>
+                            <InputText class="form-control text-white px-3 py-2.5"
+                                       style="background: #111722;
+                            border: 2px solid #00d2ff;
+                            border-radius: 10px;
+                            font-size: 0.95rem;
+                            box-shadow: 0 0 15px rgba(0, 210, 255, 0.35), inset 0 2px 4px rgba(0,0,0,0.5);"
+                                       placeholder="Enter your username"
+                                       disabled="@isLoggingIn"
+                                       @bind-Value="loginModel.UserName" />
+                            <div class="small mt-1 text-danger">
+                                <ValidationMessage For="@(() => loginModel.UserName)" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                Password<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                            </label>
+                            <InputText type="password"
+                                       class="form-control text-white-50 px-3 py-2.5"
+                                       style="background: #192230;
+                            border: 1px solid #2e3d54;
+                            border-radius: 10px;
+                            font-size: 0.95rem;
+                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);"
+                                       placeholder="Enter your password"
+                                       disabled="@isLoggingIn"
+                                       @bind-Value="loginModel.Password" />
+                            <div class="small mt-1 text-danger">
+                                <ValidationMessage For="@(() => loginModel.Password)" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit"
+                                    class="btn fw-medium text-white py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2"
+                                    style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%);
+                                border: 1px solid #2a3c54;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+                                font-size: 1rem;
+                                letter-spacing: 0.5px;"
+                                    disabled="@isLoggingIn">
+                                @if (isLoggingIn)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span>Signing In...</span>
+                                }
+                                else
+                                {
+                                    <span>Sign In</span>
+                                }
+                            </button>
+                        </div>
+
+                    </EditForm>
+
+                    <div class="d-flex justify-content-between align-items-start mt-4 px-1" style="font-size: 0.9rem;">
+
+                        <a href="/register"
+                           class="text-decoration-none fw-medium text-start"
+                           style="color: #00d2ff; transition: text-shadow 0.2s ease-in-out; display: inline-block;"
+                           onmouseover="this.style.textShadow='0 0 10px rgba(0, 210, 255, 0.85)'"
+                           onmouseout="this.style.textShadow='none'">
+                            New<br />Registration
+                        </a>
+
+                        <a href="/forgotpassword"
+                           class="text-decoration-none fw-medium text-start"
+                           style="color: #94a3b8; transition: text-shadow 0.2s ease-in-out; display: inline-block;"
+                           onmouseover="this.style.textShadow='0 0 10px rgba(148, 163, 184, 0.85)'"
+                           onmouseout="this.style.textShadow='none'">
+                            Forgot<br />Password?
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="w-100 d-flex justify-content-between align-items-center px-4 py-3 text-muted position-absolute bottom-0 start-0"
+            style="font-size: 0.75rem; color: #4b596c !important; border-top: 1px solid rgba(255,255,255,0.02);">
+        <div>
+            Enterprise Edition | © 2026 EMS Corp. All rights reserved.
+        </div>
+        <div style="color: #4b596c;">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 0l6 8-6 8-6-8z" />
+            </svg>
+        </div>
+    </footer>
+</div>

@@ -1,0 +1,308 @@
+﻿@page "/employeelist"
+@using EMS.Shared.DTOs
+@using System
+@using System.Linq
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject EMS.Blazor.Services.EmployeeService EmployeeService
+@inject EMS.Blazor.Services.TokenService TokenService
+@rendermode InteractiveServer
+
+<style>
+    /* 1. Eliminate default browser margins and force dark background on the absolute root */
+    html, body, :root {
+        background-color: #0d1117 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* 2. Target Blazor's layout structural wrappers to paint them dark and remove gaps */
+    .page, main, main .px-4, article, .content {
+        background-color: #0d1117 !important;
+        background: radial-gradient(circle at center, #1a2332 0%, #0d1117 100%) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    /* 3. Force Blazor's built-in top header row to match the dark color scheme */
+    .top-row {
+        background-color: #111722 !important;
+        background: #111722 !important;
+        border-bottom: 1px solid rgba(0, 210, 255, 0.1) !important;
+        margin: 0 !important;
+        padding: 0 1.5rem !important;
+    }
+
+        /* 4. Ensure the default 'About' link colors look intentional in dark mode */
+        .top-row a, .top-row .btn-link {
+            color: #00d2ff !important;
+            text-decoration: none;
+            font-weight: 500;
+        }
+</style>
+
+<div class="container-fluid min-vh-100 p-4 position-relative"
+     style="font-family: 'Segoe UI', system-ui, sans-serif; color: #94a3b8; padding-bottom: 70px !important;">
+
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button"
+                class="btn text-white fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                style="background: linear-gradient(180deg, #2d1e1e 0%, #1a1111 100%) !important;
+            border: 1px solid #dc2626 !important;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.25) !important;
+            font-size: 0.9rem; transition: all 0.2s;"
+                @onclick="Logout">
+            <svg width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16" style="color: #f87171;">
+                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
+                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+            </svg>
+            Logout
+        </button>
+    </div>
+
+    <div class="card border-0 rounded-4 overflow-hidden shadow-lg"
+         style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(0, 210, 255, 0.15) !important;">
+
+        <div class="card-header border-0 p-4"
+             style="background: linear-gradient(180deg, rgba(35,45,63,0.8) 0%, rgba(21,27,38,0.4) 100%) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                <div>
+                    <h3 class="mb-1 fw-bold text-white" style="letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                        Employee Management System
+                    </h3>
+                    <small style="color: #788fa6 !important; letter-spacing: 0.3px;">
+                        Manage employees efficiently inside your secure workspace
+                    </small>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn text-white fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                            style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important;
+                        border: 1px solid #00d2ff !important;
+                        box-shadow: 0 0 15px rgba(0, 210, 255, 0.25) !important;
+                        font-size: 0.9rem; transition: all 0.2s;"
+                            @onclick="AddEmployee">
+                        <svg width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" style="color: #00d2ff;">
+                            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                        </svg>
+                        Add Employee
+                    </button>
+                    <button type="button"
+                            class="btn text-white fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                            style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important;
+                        border: 1px solid #00d2ff !important;
+                        box-shadow: 0 0 15px rgba(0, 210, 255, 0.25) !important;
+                        font-size: 0.9rem;"
+                            @onclick="DownloadEmployeePdf">
+                        <svg width="16" height="16" fill="currentColor" class="bi bi-file-earmark-pdf" viewBox="0 0 16 16" style="color: #00d2ff;">
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+                            <path d="M4.603 12.087a.08.08 0 0 1-.06-.014c-.018-.014-.027-.036-.027-.066V11c0-.05.017-.09.051-.12.034-.031.077-.046.13-.046.045 0 .083.01.114.03.03.02.047.05.047.091v.417c0 .04-.015.07-.046.091a.4.4 0 0 1-.21.033Zm1.49-1.218c.054 0 .1.008.138.024.04.015.07.037.093.065.024.028.04.06.049.098.01.038.014.078.014.122 0 .05-.008.096-.024.14a.42.42 0 0 1-.073.119.34.34 0 0 1-.124.078c-.053.02-.117.03-.193.03h-.327v-.676h.457Z" />
+                        </svg>
+                        Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4" style="background: transparent !important;">
+
+            @if (isLoading)
+            {
+                <div class="text-center p-5">
+                    <div class="spinner-border text-info mb-3" role="status" style="color: #00d2ff !important;"></div>
+                    <p class="text-muted small">Accessing workforce database...</p>
+                </div>
+            }
+            else if (isUnauthorized)
+            {
+                <div class="text-center p-5 my-3 mx-auto rounded-4 border"
+                     style="background: linear-gradient(145deg, #2a1b1b 0%, #160f0f 100%) !important;
+                    max-width: 550px;
+                    border-color: rgba(220, 38, 38, 0.25) !important;
+                    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5) !important;">
+                    <div class="text-danger mb-3">
+                        <i class="bi bi-shield-lock" style="font-size: 3rem; color: #f87171;"></i>
+                    </div>
+                    <h4 class="text-white fw-bold mb-2">Session Expired or Unauthorized</h4>
+                    <p class="text-secondary small px-3 mb-4">Your infrastructure access token could not be verified by the system security cluster core. Please re-authenticate your terminal configuration session.</p>
+                    <button type="button" class="btn text-white fw-medium px-4 py-2 rounded-3"
+                            style="background: linear-gradient(180deg, #3a1a1a 0%, #220f0f 100%) !important;
+                        border: 1px solid #dc2626 !important;
+                        box-shadow: 0 0 15px rgba(220, 38, 38, 0.2) !important;
+                        font-size: 0.85rem;"
+                            @onclick='() => Navigation.NavigateTo("/")'>
+                        <i class="bi bi-key-fill me-1" style="color: #f87171;"></i> Re-Authenticate Session
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3 mb-4 align-items-center">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control text-white px-3"
+                               style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.9rem; color: #fff !important;"
+                               placeholder="Search Employee..."
+                               @bind="searchText" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button" class="btn text-white w-100 fw-medium"
+                                style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.9rem;"
+                                @onclick="SearchEmployees">
+                            Search
+                        </button>
+                    </div>
+
+                    <div class="col-md-4 ms-auto d-flex align-items-center gap-2 justify-content-end">
+                        <label class="text-nowrap mb-0 small fw-medium" style="color: #788fa6;">Sort by:</label>
+                        <select class="form-select text-white px-3"
+                                style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.9rem; cursor: pointer; color: #fff !important; width: auto; min-width: 180px;"
+                                value="@statusFilter"
+                                @onchange="FilterEmployees">
+                            <option value="All" style="background: #151b26; color: #fff;">All Employees ▼</option>
+                            <option value="Active" style="background: #151b26; color: #fff;">Active Employees ▼</option>
+                            <option value="Inactive" style="background: #151b26; color: #fff;">Inactive Employees ▼</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive rounded-3 border" style="border-color: rgba(255,255,255,0.05) !important; background: #151b26 !important;">
+                    <table class="table align-middle mb-0" style="color: #94a3b8 !important; background: #151b26 !important;">
+                        <thead style="background: #111722 !important; color: #fff !important; font-size: 0.85rem; border-bottom: 2px solid rgba(0, 210, 255, 0.2) !important;">
+                            <tr>
+                                <th @onclick='() => ToggleSort("id")' style="cursor:pointer; padding: 16px; color: #00d2ff !important; background: #111722 !important; user-select: none;">
+                                    ID <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("id")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("name")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Employee Name <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("name")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("description")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Description <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("description")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("department")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Department <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("department")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("status")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Status <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("status")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("salary")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Salary <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("salary")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("email")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Email <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("email")</span>
+                                </th>
+                                <th @onclick='() => ToggleSort("phone")' style="cursor:pointer; padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Phone Number <span style="font-size: 0.85rem; margin-left: 4px;">@GetSortIcon("phone")</span>
+                                </th>
+                                <th style="padding: 16px; color: #fff !important; background: #111722 !important; user-select: none;">
+                                    Location
+                                </th>
+                                <th style="padding: 16px; color: #fff !important; background: #111722 !important; text-align: right; user-select: none;">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 0.9rem; background: #151b26 !important;">
+                            @foreach (var employee in filteredEmployees)
+                            {
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04) !important; background: transparent !important;">
+                                    <td style="padding: 16px; font-family: monospace; color: #00d2ff !important; background: transparent !important;">@employee.Id</td>
+                                    <td style="padding: 16px; background: transparent !important;">
+                                        <strong style="color: #ffffff !important;">@employee.EmployeeName</strong>
+                                    </td>
+                                    <td style="padding: 16px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #788fa6 !important; background: transparent !important;">
+                                        @employee.Description
+                                    </td>
+                                    <td style="padding: 16px; color: #788fa6 !important; background: transparent !important;">@employee.DepartmentName</td>
+                                    <td style="padding: 16px; background: transparent !important;">
+                                        @if (employee.IsActive)
+                                        {
+                                            <span class="badge px-2.5 py-1.5 rounded-2"
+                                                  style="background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important;">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge px-2.5 py-1.5 rounded-2"
+                                                  style="background: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; border: 1px solid rgba(239, 68, 68, 0.3) !important;">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+                                    <td style="padding: 16px; font-weight: 500; color: #ffffff !important; background: transparent !important;">
+                                        ₹ @employee.Salary
+                                    </td>
+                                    <td style="padding: 16px; color: #788fa6 !important; background: transparent !important;">@employee.Email</td>
+                                    <td style="padding: 16px; color: #788fa6 !important; background: transparent !important;">@employee.PhoneNumber</td>
+                                    <td style="padding: 16px; background: transparent !important;">
+                                        @if (employee.Latitude.HasValue && employee.Longitude.HasValue)
+                                        {
+                                            <button type="button" @onclick="() => OpenLocation(employee.Latitude.Value, employee.Longitude.Value)"
+                                                    class="btn btn-sm text-white px-2.5"
+                                                    style="background: rgba(0, 210, 255, 0.1) !important; border: 1px solid rgba(0, 210, 255, 0.4) !important; font-size: 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; text-decoration: none;">
+                                                📩 Map
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: #4b596c !important;" class="small">N/A</span>
+                                        }
+                                    </td>
+                                    <td style="padding: 16px; text-align: right; background: transparent !important;">
+                                        <div class="d-inline-flex gap-2">
+                                            <button type="button" class="btn btn-sm text-white px-2.5 py-1"
+                                                    style="background: linear-gradient(180deg, #2a3c54 0%, #192330 100%) !important; border: 1px solid #3d516b !important; font-size: 0.8rem; border-radius: 6px;"
+                                                    @onclick="() => EditEmployee(employee.Id)">
+                                                Edit
+                                            </button>
+                                            <button type="button" class="btn btn-sm text-white px-2.5 py-1"
+                                                    style="background: linear-gradient(180deg, #dc2626 0%, #7f1d1d 100%) !important; border: 1px solid #b91c1c !important; font-size: 0.8rem; border-radius: 6px;"
+                                                    @onclick="() => DeleteEmployee(employee.Id)">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center align-items-center mt-4 pt-2">
+                    <button type="button" class="btn btn-sm text-white px-3 py-2"
+                            style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important; border: 1px solid #2e3d54 !important; border-radius: 6px; font-size: 0.85rem;"
+                            @onclick="PreviousPage">
+                        Previous
+                    </button>
+                    <span class="mx-4 small fw-medium text-white" style="letter-spacing: 0.5px;">
+                        Page <span style="color: #00d2ff;">@currentPage</span>
+                    </span>
+                    <button type="button" class="btn btn-sm text-white px-3 py-2"
+                            style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important; border: 1px solid #2e3d54 !important; border-radius: 6px; font-size: 0.85rem;"
+                            @onclick="NextPage">
+                        Next
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <footer class="w-100 d-flex justify-content-between align-items-center px-4 py-3 text-muted position-absolute bottom-0 start-0"
+            style="font-size: 0.75rem; color: #4b596c !important; border-top: 1px solid rgba(255,255,255,0.02) !important;">
+        <div>
+            Created By : Vinit Nibude | vinitnibude619@gmail.com
+        </div>
+        <div style="color: #4b596c;">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 0l6 8-6 8-6-8z" />
+            </svg>
+        </div>
+    </footer>
+</div>

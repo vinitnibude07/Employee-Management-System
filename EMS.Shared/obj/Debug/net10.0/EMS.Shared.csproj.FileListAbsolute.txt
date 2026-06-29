@@ -1,0 +1,22 @@
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.deps.json
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.pdb
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.AssemblyInfoInputs.cache
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.AssemblyInfo.cs
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.csproj.CoreCompileInputs.cache
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\refint\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.pdb
+C:\Users\admin\source\repos\Employee Management System\EMS.Shared\obj\Debug\net10.0\ref\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.deps.json
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\bin\Debug\net10.0\EMS.Shared.pdb
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.AssemblyInfoInputs.cache
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.AssemblyInfo.cs
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.csproj.CoreCompileInputs.cache
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\refint\EMS.Shared.dll
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\EMS.Shared.pdb
+C:\Users\admin\source\repos\Employee Management System\Employee Management System\EMS.Shared\obj\Debug\net10.0\ref\EMS.Shared.dll

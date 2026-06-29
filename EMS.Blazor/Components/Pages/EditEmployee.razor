@@ -1,0 +1,155 @@
+﻿@page "/editemployee/{Id:int}"
+@rendermode InteractiveServer
+
+@using EMS.Shared.DTOs
+@using EMS.Blazor.Models
+
+<div class="container-fluid min-vh-100 p-4 position-relative d-flex align-items-center justify-content-center"
+     style="background: radial-gradient(circle at center, #1a2332 0%, #0d1117 100%) !important; font-family: 'Segoe UI', system-ui, sans-serif; color: #94a3b8; padding-bottom: 70px !important;">
+
+    <div class="row justify-content-center w-100 my-auto">
+        <div class="col-md-10 col-lg-8" style="max-width: 750px;">
+
+            <div class="card border-0 rounded-4 shadow-2xl overflow-hidden"
+                 style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%) !important; border: 1px solid rgba(0, 210, 255, 0.15) !important;">
+
+                <div class="card-header border-0 p-4" style="background: linear-gradient(180deg, rgba(35,45,63,0.8) 0%, rgba(21,27,38,0.4) 100%) !important;">
+                    <h3 class="mb-1 fw-bold text-white">Edit Employee Profile</h3>
+                    <small style="color: #788fa6 !important;">Modify identity configurations and system privileges</small>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (employee == null)
+                    {
+                        <div class="text-center p-5">
+                            <div class="spinner-border text-info mb-3" role="status"></div>
+                            <p class="text-muted">Loading record...</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="@updateModel" OnValidSubmit="UpdateEmployee" FormName="EditEmployeeForm">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="small text-danger mb-3" />
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                        Employee Name<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                    </label>
+                                    <InputText class="form-control text-white px-3 py-2.5" style="background: #111722; border: 1px solid #2e3d54;" @bind-Value="updateModel.EmployeeName" disabled="@isSaving" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                        Salary (₹)<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                    </label>
+                                    <InputNumber class="form-control text-white px-3 py-2.5" style="background: #111722; border: 1px solid #2e3d54;" @bind-Value="updateModel.Salary" disabled="@isSaving" />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                    Corporate Department<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                </label>
+                                <InputSelect class="form-select text-white px-3 py-2.5"
+                                             style="background: #111722; border: 1px solid #2e3d54;"
+                                             @bind-Value="updateModel.DepartmentId"
+                                             disabled="@isSaving">
+
+                                    <option value="0">-- Select a Department --</option>
+
+                                    @if (departments != null)
+                                    {
+                                        @foreach (var dept in departments)
+                                        {
+                                            <option value="@dept.Id.ToString()">@dept.Name</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">Description</label>
+                                <InputText class="form-control text-white px-3 py-2.5"
+                                           style="background: #111722; border: 1px solid #2e3d54;"
+                                           placeholder="Enter job description..."
+                                           @bind-Value="updateModel.Description" disabled="@isSaving" />
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                        Email Address<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                    </label>
+                                    <InputText class="form-control text-white px-3 py-2.5" style="background: #111722; border: 1px solid #2e3d54;" @bind-Value="updateModel.Email" disabled="@isSaving" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                        Phone Number<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                    </label>
+                                    <InputText class="form-control text-white px-3 py-2.5" style="background: #111722; border: 1px solid #2e3d54;" @bind-Value="updateModel.PhoneNumber" disabled="@isSaving" />
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background: rgba(0,0,0,0.15);">
+                                <InputCheckbox class="form-check-input" style="background-color: #111722;" @bind-Value="updateModel.IsActive" disabled="@isSaving" />
+                                <label class="form-check-label text-white">Active Status</label>
+                                <button type="button" class="btn btn-sm text-white ms-auto" style="background: #192230; border: 1px solid #3d516b;" @onclick="GetLocation" disabled="@isSaving">
+                                    🛰️ Update Coordinates
+                                </button>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(locationMessage))
+                            {
+                                <div class="alert small text-info mb-4" style="background: rgba(0, 210, 255, 0.1);">@locationMessage</div>
+                            }
+
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary">
+                                <button type="button" class="btn text-white px-4" style="background: #2a3c54;" @onclick="Cancel" disabled="@isSaving">Cancel</button>
+
+                                <button type="submit"
+                                        class="btn text-white px-4 d-flex align-items-center gap-2"
+                                        style="background: #1e2d42; border: 1px solid #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.15);"
+                                        disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <div class="spinner-border spinner-border-sm text-info" role="status"></div>
+                                        <span>Saving Changes...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Update Employee</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (showSuccessPopup)
+{
+    <div class="modal fade show d-block" style="background: rgba(13, 17, 23, 0.85);" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 rounded-4 shadow-2xl"
+                 style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%) !important; border: 1px solid rgba(0, 210, 255, 0.2) !important;">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4 d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-lg"
+                         style="width: 65px; height: height: 65px; background-color: #10b981; font-size: 1.75rem; font-weight: bold;">
+                        ✓
+                    </div>
+                    <h4 class="mb-2 text-white fw-bold" style="letter-spacing: 0.5px;">Updated!</h4>
+                    <p class="mb-4" style="color: #94a3b8; font-size: 0.95rem;">Employee records have been updated successfully in the system database.</p>
+                    <button type="button" class="btn text-white w-100 py-2.5 rounded-3 fw-medium shadow-md"
+                            style="background: linear-gradient(180deg, #00d2ff 0%, #00a8cc 100%) !important; border: none; font-size: 0.9rem;"
+                            @onclick="ClosePopupAndNavigate">
+                        Continue to Directory
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

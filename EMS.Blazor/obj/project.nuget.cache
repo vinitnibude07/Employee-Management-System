@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "BjrwxUicawc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\admin\\source\\repos\\Employee Management System\\Employee Management System\\EMS.Blazor\\EMS.Blazor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\admin\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.8\\microsoft.aspnetcore.app.internal.assets.10.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}

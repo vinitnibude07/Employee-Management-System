@@ -1,0 +1,227 @@
+﻿@inject IJSRuntime JS
+@using EMS.Blazor.Models
+@page "/addemployee"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Forms
+@using EMS.Shared.DTOs
+@inject EMS.Blazor.Services.EmployeeService EmployeeService
+@inject NavigationManager Navigation
+
+<div class="container-fluid min-vh-100 p-4 position-relative d-flex align-items-center justify-content-center"
+     style="background: radial-gradient(circle at center, #1a2332 0%, #0d1117 100%) !important; font-family: 'Segoe UI', system-ui, sans-serif; color: #94a3b8; padding-bottom: 70px !important;">
+
+    <div class="row justify-content-center w-100 my-auto">
+        <div class="col-md-10 col-lg-8" style="max-width: 750px;">
+
+            <div class="card border-0 rounded-4 shadow-2xl overflow-hidden"
+                 style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%) !important;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255,255,255,0.1) !important;
+                border: 1px solid rgba(0, 210, 255, 0.15) !important;">
+
+                <div class="card-header border-0 p-4"
+                     style="background: linear-gradient(180deg, rgba(35,45,63,0.8) 0%, rgba(21,27,38,0.4) 100%) !important;
+                    border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
+                    <h3 class="mb-1 fw-bold text-white" style="letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                        Add New Employee
+                    </h3>
+                    <small style="color: #788fa6 !important; letter-spacing: 0.3px;">
+                        Provision credentials and configuration data into the central system database
+                    </small>
+                </div>
+
+                <div class="card-body p-4" style="background: transparent !important;">
+
+                    <EditForm Model="@employee"
+                              OnValidSubmit="SaveEmployee"
+                              FormName="AddEmployeeForm">
+
+                        <DataAnnotationsValidator />
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                    Employee Name<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                </label>
+                                <InputText class="form-control text-white px-3 py-2.5"
+                                           style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important;"
+                                           placeholder="John Doe"
+                                           disabled="@isSaving"
+                                           @bind-Value="employee.EmployeeName" />
+                                <ValidationMessage For="@(() => employee.EmployeeName)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                    Salary (₹)<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                </label>
+                                <InputNumber class="form-control text-white px-3 py-2.5"
+                                             style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important;"
+                                             placeholder="0.00"
+                                             disabled="@isSaving"
+                                             @bind-Value="employee.Salary" />
+                                <ValidationMessage For="@(() => employee.Salary)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                Corporate Department<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                            </label>
+                            <InputSelect class="form-select text-white px-3 py-2.5 shadow-none"
+                                         style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important; cursor: pointer;"
+                                         disabled="@isSaving"
+                                         @bind-Value="employee.DepartmentId">
+                                <option value="0" disabled>-- Select a Department --</option>
+                                @if (departments != null)
+                                {
+                                    @foreach (var dept in departments)
+                                    {
+                                        <option value="@dept.Id">@dept.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => employee.DepartmentId)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                Description
+                            </label>
+                            <InputText class="form-control text-white px-3 py-2.5"
+                                       style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important;"
+                                       placeholder="Enter professional bio or job summary..."
+                                       disabled="@isSaving"
+                                       @bind-Value="employee.Description" />
+                            <ValidationMessage For="@(() => employee.Description)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                    Email Address<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                </label>
+                                <InputText class="form-control text-white px-3 py-2.5"
+                                           style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important;"
+                                           placeholder="name@company.com"
+                                           disabled="@isSaving"
+                                           @bind-Value="employee.Email" />
+                                <ValidationMessage For="@(() => employee.Email)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2" style="color: #a4b5c6 !important;">
+                                    Phone Number<span style="color: #ef4444; font-weight: bold; margin-left: 3px;">*</span>
+                                </label>
+                                <InputText class="form-control text-white px-3 py-2.5"
+                                           style="background: #111722 !important; border: 1px solid #2e3d54 !important; border-radius: 8px; font-size: 0.95rem; color: #fff !important;"
+                                           placeholder="+91 XXXXX XXXXX"
+                                           disabled="@isSaving"
+                                           @bind-Value="employee.PhoneNumber" />
+                                <ValidationMessage For="@(() => employee.PhoneNumber)" class="small mt-1 d-block" style="color: #ef4444 !important; font-weight: 500;" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 p-3 rounded-3"
+                             style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.02); shadow-none;">
+
+                            <div class="form-check d-flex align-items-center gap-2 m-0">
+                                <InputCheckbox class="form-check-input mt-0"
+                                               style="background-color: #111722; border-color: #2e3d54; width: 18px; height: 18px; cursor: pointer;"
+                                               disabled="@isSaving"
+                                               @bind-Value="employee.IsActive" />
+                                <label class="form-check-label small fw-semibold text-white ms-1" style="cursor: pointer;">
+                                    Active Employee status
+                                </label>
+                            </div>
+
+                            <button type="button"
+                                    class="btn btn-sm text-white px-3 py-2"
+                                    style="background: #192230 !important; border: 1px solid #3d516b !important; font-size: 0.85rem; border-radius: 6px;"
+                                    disabled="@isSaving"
+                                    @onclick="GetLocation">
+                                🛰️ Fetch Current Location
+                            </button>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(locationMessage))
+                        {
+                            <div class="alert border-0 small rounded-3 mb-4"
+                                 style="background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid rgba(0, 210, 255, 0.2) !important;" role="alert">
+                                📡 Global Tracking: @locationMessage
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top" style="border-color: rgba(255,255,255,0.04) !important;">
+                            <button type="button"
+                                    class="btn text-white px-4 py-2 rounded-3"
+                                    style="background: linear-gradient(180deg, #2a3c54 0%, #192330 100%) !important; border: 1px solid #3d516b !important; font-size: 0.9rem;"
+                                    disabled="@isSaving"
+                                    @onclick='() => Navigation.NavigateTo("/employeelist")'>
+                                Cancel
+                            </button>
+
+                            <button type="submit"
+                                    class="btn text-white fw-medium px-4 py-2 rounded-3 d-flex align-items-center gap-2"
+                                    style="background: linear-gradient(180deg, #1e2d42 0%, #111a26 100%) !important;
+                                border: 1px solid #00d2ff !important;
+                                box-shadow: 0 0 15px rgba(0, 210, 255, 0.25) !important;
+                                font-size: 0.9rem;"
+                                    disabled="@isSaving">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span>Saving...</span>
+                                }
+                                else
+                                {
+                                    <span>Save Employee</span>
+                                }
+                            </button>
+                        </div>
+
+                    </EditForm>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    @if (showSuccessPopup)
+    {
+        <div class="modal fade show d-block" style="background: rgba(13, 17, 23, 0.85);" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0 rounded-4 shadow-2xl"
+                     style="background: linear-gradient(145deg, #232d3f 0%, #151b26 100%) !important; border: 1px solid rgba(0, 210, 255, 0.2) !important;">
+                    <div class="modal-body text-center p-5">
+                        <div class="mb-4 d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-lg"
+                             style="width: 65px; height: 65px; background-color: #10b981; font-size: 1.75rem; font-weight: bold;">
+                            ✓
+                        </div>
+                        <h4 class="mb-2 text-white fw-bold" style="letter-spacing: 0.5px;">Success!</h4>
+                        <p class="mb-4" style="color: #94a3b8; font-size: 0.95rem;">Employee has been added successfully to the database registry.</p>
+                        <button type="button" class="btn text-white w-100 py-2.5 rounded-3 fw-medium shadow-md"
+                                style="background: linear-gradient(180deg, #00d2ff 0%, #00a8cc 100%) !important; border: none; font-size: 0.9rem;"
+                                @onclick="ClosePopupAndNavigate">
+                            Continue to Directory
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <footer class="w-100 d-flex justify-content-between align-items-center px-4 py-3 text-muted position-absolute bottom-0 start-0"
+            style="font-size: 0.75rem; color: #4b596c !important; border-top: 1px solid rgba(255,255,255,0.02) !important;">
+        <div>
+            Enterprise Edition | © 2026 EMS Corp. All rights reserved.
+        </div>
+        <div style="color: #4b596c;">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 0l6 8-6 8-6-8z" />
+            </svg>
+        </div>
+    </footer>
+</div>

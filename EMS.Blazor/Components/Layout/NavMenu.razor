@@ -1,0 +1,146 @@
+﻿@inject EMS.Blazor.Services.TokenService TokenService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+<div class="custom-sidebar">
+    <div class="top-row">
+        <div class="brand-container">
+            <span class="badge-core">CORE</span>
+            <span class="brand-text">EMS WORKSPACE</span>
+        </div>
+    </div>
+
+    <nav class="flex-column custom-nav">
+        <div class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="nav-icon" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z" />
+                    <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z" />
+                </svg>
+                <span class="nav-text">Home</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <button type="button"
+                    @onclick="HandleEmployeeTabClick"
+                    @onclick:stopPropagation="true"
+                    class="nav-link btn-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="nav-icon" viewBox="0 0 16 16">
+                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                </svg>
+                <span class="nav-text">Employees</span>
+            </button>
+        </div>
+    </nav>
+</div>
+
+@if (showAuthModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(10, 15, 26, 0.85); z-index: 2000;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content text-white border-0 shadow" style="background: #0b1120; border: 1px solid #1f2937 !important; border-radius: 12px;">
+                <div class="modal-body p-4 text-center">
+                    <h5 class="fw-bold text-white mb-3" style="color: #00d2ff !important;">Authentication Required</h5>
+
+                    <p style="color: #a8b2c1; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;">
+                        You need to log in first to access the Employee Directory.
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-3 mt-2">
+                        <button type="button" class="btn"
+                                style="background: transparent; border: 1px solid #4b5563; color: #a8b2c1; padding: 8px 24px;"
+                                @onclick="CloseModal">
+                            Back
+                        </button>
+                        <button type="button" class="btn"
+                                style="background: #00d2ff; color: #000; font-weight: 600; padding: 8px 24px; box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);"
+                                @onclick="RedirectToLogin">
+                            Log in
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showLogoutModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(10, 15, 26, 0.85); z-index: 2000;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content text-white border-0 shadow" style="background: #0b1120; border: 1px solid #1f2937 !important; border-radius: 12px;">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#22c55e" class="bi bi-check-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z" />
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold text-white mb-3">Logged out successfully</h5>
+                    <p style="color: #a8b2c1; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;">
+                        You have been signed out of your account.
+                    </p>
+
+                    <button type="button" class="btn w-100"
+                            style="background: #00d2ff; color: #000; font-weight: 600; padding: 10px 24px;"
+                            @onclick="ConfirmLogout">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private bool showAuthModal = false;
+    private bool showLogoutModal = false;
+
+    private void HandleEmployeeTabClick()
+    {
+        // Fetch the token from your TokenService
+        var token = TokenService.GetToken();
+
+        // Check if the token is null, empty, or whitespace
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            // If no token exists, trigger the modal
+            showAuthModal = true;
+        }
+        else
+        {
+            // If the user has a valid token, navigate to the employee list
+            Navigation.NavigateTo("/employeelist");
+        }
+    }
+
+    private void CloseModal()
+    {
+        showAuthModal = false;
+    }
+
+    private void RedirectToLogin()
+    {
+        showAuthModal = false;
+        Navigation.NavigateTo("/login");
+    }
+    private void InitiateLogout()
+    {
+        // 1. Clear the token from your TokenService
+        // TokenService.ClearToken();
+
+        // 2. Show the modal
+        showLogoutModal = true;
+    }
+
+    // Call this when the user clicks "OK" in the modal
+    private void ConfirmLogout()
+    {
+        showLogoutModal = false;
+
+        // 3. Navigate to Home or Login
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

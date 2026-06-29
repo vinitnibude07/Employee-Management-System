@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "EMS.Blazor\\EMS.Blazor.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "EMS.API\\EMS.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
