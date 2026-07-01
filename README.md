@@ -28,3 +28,18 @@ EMS.Solution/
 ├── EMS.Shared/                 # Shared logic between client and API
 │   └── DTOs/                   # Data Transfer Objects for clean data contracts
 └── EMS.Api/                    # (Optional) Backend REST API if separated from Server App
+
+Here are some sinppets of the Employee Management System.
+<img width="1342" height="631" alt="Screenshot 2026-07-01 125920" src="https://github.com/user-attachments/assets/14944106-9675-485b-8cb2-0f5528fe6adc" />
+<img width="1352" height="557" alt="Screenshot 2026-07-01 125942" src="https://github.com/user-attachments/assets/b0108b5f-8ec2-4ce8-b43b-36df53f11001" />
+<img width="488" height="489" alt="Screenshot 2026-07-01 130006" src="https://github.com/user-attachments/assets/da1d1ac7-71b4-4b9e-be78-2281b5da4f82" />
+<img width="1353" height="632" alt="Screenshot 2026-07-01 130027" src="https://github.com/user-attachments/assets/070bfb55-9da4-4d14-9932-4ea9a020e4d7" />
+<img width="1365" height="720" alt="Screenshot 2026-07-01 130048" src="https://github.com/user-attachments/assets/ba792189-947d-464a-92a0-5495c9dbfcce" />
+<img width="482" height="519" alt="Screenshot 2026-07-01 130148" src="https://github.com/user-attachments/assets/af0a8219-0968-4a6b-93bf-be68b3c7e59e" />
+<img width="351" height="351" alt="Screenshot 2026-07-01 130214" src="https://github.com/user-attachments/assets/e3eb5f5e-9664-496c-a05e-7f4674b24d27" />
+
+
+
+
+
+
